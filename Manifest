@@ -1,0 +1,10 @@
+CHANGELOG
+Manifest
+README
+Rakefile
+VERSION
+init.rb
+lib/adapters/s3_adapter.rb
+lib/backitup.rb
+lib/backitup/tasks.rb
+tasks/tasks.rake

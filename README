@@ -1,35 +1,35 @@
-DB2S3 - A rails plugin to backup Mysql to Amazon S3
----------------------------------------------------
-You're looking at a monthly spend of four cents
-So pony up you cheap bastard, and store your backups on S3
+
 
 Usage:
   # In config/environment.rb
-  config.gem "db2s3", :source => "http://gemcutter.org"
+  config.gem "backitup", :version => ">= 0.1.0"
 
   # In Rakefile
-  require 'db2s3/tasks'
+  require 'backitup/tasks'
 
-  # In config/initializers/db2s3.rb
-  DB2S3::Config.instance_eval do
-    S3 = {
-      :access_key_id     => 'yourkey',
-      :secret_access_key => 'yoursecretkey',
-      :bucket            => 'yourapp-db-backup'
-    }
-  end
+  # In config/initializers/backitup.rb
+      Backitup.instance_eval do
+          ApplicationConfig = {
+            :adapter           => 'S3Adapter',
+            :max_number_of_backups => 5,
+            :database          => true,
+            :application       => :full
+          }
+          AdapterConfig = {
+            :access_key_id     => 'XXXXXXXXXXXXXXXXXXXX',
+            :secret_access_key => 'XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX',
+          }
+      end
+
   # DB credentials are read from your rails environment
 
   rake gems:install
 
   # Add to your crontab or whatever
-  rake db2s3:backup:full
-  rake db2s3:backup:incremental # Unimplemented
+  rake backitup:backup:full
+  rake backitup:backup:incremental # Unimplemented
 
   # Handy tasks
-  rake db2s3:statistics      # Shows you the size of your DB
-  rake db2s3:backup:restore  # You should be testing this regularly
-  rake db2s3:backup:clear    # Clean up old backups - cron this
-
-Kudos:
-  http://github.com/pauldowman/blog_code_examples/tree/master/mysql_s3_backup
+  rake backitup:statistics      # Shows you the size of your DB
+  rake backitup:backup:restore  # You should be testing this regularly
+  rake backitup2s3:backup:clear    # Clean up old backups - cron this

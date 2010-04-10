@@ -1,18 +1,14 @@
-desc "Create test database"
-task :create_test_db do
-  `mysqladmin -u root create db2s3_unittest`
+require 'rubygems'
+require 'rake'
+require 'echoe'
+
+Echoe.new('backitup', '0.1.0') do |p|
+  p.description = "Backup application and database to S3"
+  p.url         = "http://github.com/aricwalker/backitup"
+  p.author      = "Aric Walker"
+  p.email       = "aric.walker@gmail.com"
+  p.ignore_pattern = ["nbproject/*/*", "nbproject/*"]
+  p.development_dependencies = []
 end
 
-begin
-  require 'jeweler'
-  Jeweler::Tasks.new do |gemspec|
-    gemspec.name        = 'db2s3'
-    gemspec.summary     = "Summarize your gem"
-    gemspec.description = 'db2s3 provides rake tasks for backing up and restoring your DB to S3'
-    gemspec.email       = 'contact@rhnh.net'
-    gemspec.homepage    = 'http://github.com/xaviershay/db2s3'
-    gemspec.authors     = ['Xavier Shay']
-  end
-rescue LoadError
-  puts "Jeweler not available. Install it with: sudo gem install technicalpickles-jeweler -s http://gems.github.com"
-end
+Dir["#{File.dirname(__FILE__)}/tasks/*.rake"].sort.each{|ext| load ext }
