@@ -48,10 +48,8 @@ class Backitup
 
   end
 
-  def delete_backup(backup)
-    if backup.is_a?(String)
-
-    elsif backup.is_a?(Array)
+  def delete_backup(backup_id = ENV['ID'])
+    if backup_id.is_a?(String)
 
     else
       puts "Invalid parameter passed. Delete unsuccessful"
@@ -59,13 +57,17 @@ class Backitup
   end
 
 
-  def list_backups
+  def list_backups(details = ENV['details'])
     backups = backup_list[:backups].sort {|a,b| b[:time] <=> a[:time]}
     puts "--- Backups by Date ---"
     count = 1
     for backup in backups do
       backup_date = DateTime.parse(backup[:time])
-      puts "#{count}. #{backup_date.strftime("%m-%d-%Y %H:%M:%S")} | App - #{backup[:application_file]}, DB - #{backup[:database_file]}"
+      puts "#{count}. #{backup_date.strftime("%m-%d-%Y %H:%M:%S")}, ID - #{backup[:time]}"
+      if details then 
+        puts "   --- App -> #{backup[:application_file]}"
+        puts "   --- DB -> #{backup[:database_file]}"
+      end
       count = count.next
     end
     puts "-----------------------"
@@ -170,6 +172,7 @@ class Backitup
   def new_backup_instance
     {
       :time => @current_time,
+      :type => ApplicationConfig,
       :database_file => @database_file,
       :application_file => @application_file
     }

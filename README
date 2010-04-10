@@ -26,10 +26,11 @@ Usage:
   rake gems:install
 
   # Add to your crontab or whatever
-  rake backitup:backup:full
-  rake backitup:backup:incremental # Unimplemented
+  rake backitup:backup:create
+  rake backitup:backup:delete
+  rake backitup:backup:list
+  rake backitup:backup:restore
 
   # Handy tasks
-  rake backitup:statistics      # Shows you the size of your DB
-  rake backitup:backup:restore  # You should be testing this regularly
-  rake backitup2s3:backup:clear    # Clean up old backups - cron this
+  rake backitup:statistics      # Shows you the size of your DB  
+  
