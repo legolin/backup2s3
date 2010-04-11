@@ -2,17 +2,17 @@ namespace :backitup do
   namespace :backup do
     desc "Save a full back to S3"
     task :create => :environment do
-      Backitup.new.create_backup
+      Backitup.new.create
     end
 
     desc "Save a full back to S3"
     task :delete => :environment do
-      Backitup.new.delete_backup
+      Backitup.new.delete
     end
 
     desc "Save a full back to S3"
     task :list => :environment do
-      Backitup.new.list_backups
+      Backitup.new.list
     end
 
     desc "Restore your DB from S3"
