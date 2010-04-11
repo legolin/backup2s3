@@ -4,12 +4,13 @@ require 'yaml'
 
 class BackupManagement::Backup
 
-  attr_accessor :time, :application_file, :database_file
+  attr_accessor :time, :application_file, :database_file, :comment
   
-  def initialize(time, application_file, database_file)
+  def initialize(time, application_file, database_file, comment = nil)
     self.time = time
     self.application_file = application_file
     self.database_file = database_file
+    self.comment = comment
   end
 
   def human_readable_time

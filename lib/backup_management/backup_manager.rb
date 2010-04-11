@@ -1,7 +1,7 @@
 require 'yaml'
 
 class BackupManagement::BackupManager
-  include Database
+  include System
   
   attr_accessor :backup_list_filename, :backups
 
@@ -11,7 +11,7 @@ class BackupManagement::BackupManager
   end
 
   def self.filename
-    "#{Database.db_credentials[:database]}_#{`hostname`.tidy}_backups.yaml".tidy
+    "#{System.db_credentials[:database]}_#{`hostname`.tidy}_backups.yaml".tidy
   end
 
   def self.local_filename
@@ -35,6 +35,10 @@ class BackupManagement::BackupManager
     nil
   end
 
+  def get_oldest_backup
+    self.backups.sort{|a,b| b.time <=> a.time}.last
+  end
+
   def get_backup(backup_id)
     self.backups.each { |backup|
       if backup.time == backup_id then
@@ -52,6 +56,7 @@ class BackupManagement::BackupManager
       if details then
         puts "   --- App -> #{backup.application_file}"
         puts "   --- DB -> #{backup.database_file}"
+        puts "   --- Comment -> #{backup.comment}"
       end
       count = count.next
     end

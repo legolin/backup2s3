@@ -4,8 +4,7 @@ require 'tempfile'
 require 'yaml'
 
 class Backitup
-  include Database
-  include BackupManagement
+  include System
 
   def initialize
     STDOUT.sync = true #used so that print will not buffer output
@@ -18,15 +17,21 @@ class Backitup
 
 
   #CREATE creates a backup
-  def create
-    create_backup    
+  def create(comment = ENV['comment'])
+    create_backup(comment)
     save_backup_manager
   end
 
   #DELETE deletes a backup
-  def delete(backup_id = ENV['ID'])
+  def delete(backup_id = ENV['id'])
     raise "ID to delete is blank!" and return if backup_id == nil
     delete_backup(backup_id)
+    save_backup_manager
+  end
+
+  def restore(backup_id = ENV['id'])
+    raise "ID to restore is blank!" and return if backup_id == nil
+    restore_backup(backup_id)
     save_backup_manager
   end
 
@@ -38,12 +43,12 @@ class Backitup
 
   private
 
-  def create_backup
+  def create_backup(comment)
     if ApplicationConfig[:database]
-      @database_file = "#{@time}-#{Database.db_credentials[:database]}-database.sql"
-      database_temp = db_dump
+      @database_file = "#{@time}-#{System.db_credentials[:database]}-database.sql"
+      database_temp = System.db_dump
       puts ""
-      puts "- Database dump size: " << database_temp.size.to_s << " B"
+      puts "- System dump size: " << database_temp.size.to_s << " B"
       print "--- Backing up database..."
       adapter.store(@database_file, open(database_temp.path))
       puts "done"
@@ -52,8 +57,8 @@ class Backitup
     if ApplicationConfig[:application].class == Array
       #TODO create selective app dump and move to S3
     elsif ApplicationConfig[:application].class == Symbol and ApplicationConfig[:application] == :full
-      @application_file = "#{@time}-#{Database.db_credentials[:database]}-application.tar.gz"
-      application_temp = tar_application
+      @application_file = "#{@time}-#{System.db_credentials[:database]}-application.tar.gz"
+      application_temp = System.tar_application
       puts ""
       puts "- Application tarball size: " << application_temp.size.to_s << " B"
       print "--- Backing up application folders..."
@@ -61,10 +66,13 @@ class Backitup
       puts "done"
     end
 
-    if ApplicationConfig[:max_number_of_backups] > @backup_manager.number_of_backups then
-      #@backup_manager.remove_oldest_backup
+    if ApplicationConfig[:max_number_of_backups] == @backup_manager.number_of_backups then
+      puts ""
+      puts "Reached max_number_of_backups, removing oldest backup..."
+      backup_to_delete = @backup_manager.get_oldest_backup
+      delete_backup(backup_to_delete.time)
     end
-    backup = BackupManagement::Backup.new(@time, @application_file.to_str, @database_file.to_str)
+    backup = BackupManagement::Backup.new(@time, @application_file, @database_file, comment)
     @backup_manager.add_backup(backup)
     puts ""
   end
@@ -82,37 +90,15 @@ class Backitup
         "Warning: Backup with ID #{backup.time} was not found and therefore not deleted.")
   end
 
-  # Run system commands
-  def run(command)
-    result = system(command)
-    raise("error, process exited with status #{$?.exitstatus}") unless result
+  def restore_backup(backup_id)
+    backup = @backup_manager.get_backup(backup_id)
+    if backup.nil? then
+      puts "Backup with ID #{backup_id} does not exist."
+      return
+    end    
+
   end
   
-  # Creates app tar file
-  def tar_application
-    application_tar = Tempfile.new("app")
-    cmd = "tar --dereference -czf #{application_tar.path} public/"
-    run(cmd)    
-    return application_tar
-  end
-
-  # Creates and runs mysqldump and throws into .tar.gz file.
-  # Returns .tar.gz file
-  def db_dump
-    dump_file = Tempfile.new("dump")
-    cmd = "mysqldump --quick --single-transaction --create-options #{mysql_options}"
-    cmd += " > #{dump_file.path}"
-    run(cmd)    
-    return dump_file
-  end
-
-  def mysql_options
-    cmd = ''
-    cmd += " -u #{Database.db_credentials[:username]} " unless Database.db_credentials[:username].nil?
-    cmd += " -p'#{Database.db_credentials[:password]}'" unless Database.db_credentials[:password].nil?
-    cmd += " -h '#{Database.db_credentials[:host]}'"    unless Database.db_credentials[:host].nil?
-    cmd += " #{Database.db_credentials[:database]}"
-  end
 
   # Returns instance of class used to interface with S3
   def adapter
@@ -143,8 +129,6 @@ class Backitup
     rescue
       puts "Unable to save BackupManager to S3"
     end
-  end
-
-  
+  end 
 
 end

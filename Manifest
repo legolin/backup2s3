@@ -9,5 +9,5 @@ lib/backitup.rb
 lib/backup_management/backup.rb
 lib/backup_management/backup_manager.rb
 lib/backup_management/tasks.rb
-lib/database.rb
+lib/system.rb
 tasks/tasks.rake
