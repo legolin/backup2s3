@@ -1,1 +1,1 @@
-require 'backitup'
+require 'backup2s3'

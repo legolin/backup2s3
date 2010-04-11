@@ -3,7 +3,7 @@ require 'active_support'
 require 'tempfile'
 require 'yaml'
 
-class Backitup
+class Backup2s3
   include System
 
   def initialize

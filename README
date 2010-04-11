@@ -1,14 +1,12 @@
-
-
 Usage:
   # In config/environment.rb
-  config.gem "backitup", :version => ">= 0.1.0"
+  config.gem "backup2s3", :version => ">= 0.1.0"
 
   # In Rakefile
-  require 'backitup/tasks'
+  require 'backup2s3/tasks'
 
-  # In config/initializers/backitup.rb
-      Backitup.instance_eval do
+  # In config/initializers/backup2s3.rb
+      Backup2s3.instance_eval do
           ApplicationConfig = {
             :adapter           => 'S3Adapter',
             :max_number_of_backups => 5,
@@ -26,11 +24,10 @@ Usage:
   rake gems:install
 
   # Add to your crontab or whatever
-  rake backitup:backup:create
-  rake backitup:backup:delete
-  rake backitup:backup:list
-  rake backitup:backup:restore
+  rake backup2s3:backup:create
+  rake backup2s3:backup:delete
+  rake backup2s3:backup:list
+  rake backup2s3:backup:restore
 
   # Handy tasks
-  rake backitup:statistics      # Shows you the size of your DB  
-  
+  rake backup2s3:statistics      # Shows you the size of your DB
