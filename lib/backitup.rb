@@ -5,6 +5,7 @@ require 'yaml'
 
 class Backitup
   include Database
+  include BackupManagement
 
   def initialize
     STDOUT.sync = true #used so that print will not buffer output
@@ -63,15 +64,22 @@ class Backitup
     if ApplicationConfig[:max_number_of_backups] > @backup_manager.number_of_backups then
       #@backup_manager.remove_oldest_backup
     end
-    backup = BackupManagement::Backup.new(@time, @application_file, @database_file)
+    backup = BackupManagement::Backup.new(@time, @application_file.to_str, @database_file.to_str)
     @backup_manager.add_backup(backup)
+    puts ""
   end
 
   def delete_backup(backup_id)
     backup = @backup_manager.get_backup(backup_id)
-    adapter.delete(backup.application_file)
-    adapter.delete(backup.database_file)
-    @backup_manager.delete_backup(backup)
+    if backup.nil? then
+      puts "Backup with ID #{backup_id} does not exist."
+      return
+    end    
+    begin adapter.delete(backup.application_file) rescue puts "Could not delete #{backup.application_file}!" end
+    begin adapter.delete(backup.database_file) rescue puts "Could not delete #{backup.database_file}!" end    
+    puts (@backup_manager.delete_backup(backup) ?
+        "Backup with ID #{backup.time} was successfully deleted." :
+        "Warning: Backup with ID #{backup.time} was not found and therefore not deleted.")
   end
 
   # Run system commands
@@ -114,7 +122,9 @@ class Backitup
   end  
 
   def load_backup_manager
-    begin
+    BackupManagement::BackupManager.new()
+    BackupManagement::Backup.new(nil, nil, nil)
+    begin           
       @backup_manager ||= YAML.load_file(adapter.fetch(BackupManagement::BackupManager.filename).path)
       @backup_manager ||= YAML.load_file(BackupManagement::BackupManager.local_filename)
     rescue
