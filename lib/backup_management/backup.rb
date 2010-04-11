@@ -1,7 +1,7 @@
 # To change this template, choose Tools | Templates
 # and open the template in the editor.
 
-class Backup
+class BackupManagement::Backup
 
   attr_accessor :time, :application_file, :database_file
   
@@ -12,6 +12,6 @@ class Backup
   end
 
   def human_readable_time
-    self.time.strftime("%m-%d-%Y %H:%M:%S")
+    DateTime.parse(self.time).strftime("%m-%d-%Y %H:%M:%S")
   end
 end

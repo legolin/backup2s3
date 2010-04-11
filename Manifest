@@ -6,5 +6,8 @@ VERSION
 init.rb
 lib/adapters/s3_adapter.rb
 lib/backitup.rb
-lib/backitup/tasks.rb
+lib/backup_management/backup.rb
+lib/backup_management/backup_manager.rb
+lib/backup_management/tasks.rb
+lib/database.rb
 tasks/tasks.rake

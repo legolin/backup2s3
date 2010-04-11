@@ -3,8 +3,6 @@ require 'active_support'
 require 'tempfile'
 require 'yaml'
 
-
-
 class Backitup
   include Database
 
@@ -41,7 +39,7 @@ class Backitup
 
   def create_backup
     if ApplicationConfig[:database]
-      @database_file = "#{@time}-#{db_credentials[:database]}-database.sql"
+      @database_file = "#{@time}-#{Database.db_credentials[:database]}-database.sql"
       database_temp = db_dump
       puts ""
       puts "- Database dump size: " << database_temp.size.to_s << " B"
@@ -53,7 +51,7 @@ class Backitup
     if ApplicationConfig[:application].class == Array
       #TODO create selective app dump and move to S3
     elsif ApplicationConfig[:application].class == Symbol and ApplicationConfig[:application] == :full
-      @application_file = "#{@time}-#{db_credentials[:database]}-application.tar.gz"
+      @application_file = "#{@time}-#{Database.db_credentials[:database]}-application.tar.gz"
       application_temp = tar_application
       puts ""
       puts "- Application tarball size: " << application_temp.size.to_s << " B"
@@ -65,7 +63,7 @@ class Backitup
     if ApplicationConfig[:max_number_of_backups] > @backup_manager.number_of_backups then
       #@backup_manager.remove_oldest_backup
     end
-    backup = Backup.new(@time, @application_file, @database_file)
+    backup = BackupManagement::Backup.new(@time, @application_file, @database_file)
     @backup_manager.add_backup(backup)
   end
 
@@ -102,10 +100,10 @@ class Backitup
 
   def mysql_options
     cmd = ''
-    cmd += " -u #{db_credentials[:username]} " unless db_credentials[:username].nil?
-    cmd += " -p'#{db_credentials[:password]}'" unless db_credentials[:password].nil?
-    cmd += " -h '#{db_credentials[:host]}'"    unless db_credentials[:host].nil?
-    cmd += " #{db_credentials[:database]}"
+    cmd += " -u #{Database.db_credentials[:username]} " unless Database.db_credentials[:username].nil?
+    cmd += " -p'#{Database.db_credentials[:password]}'" unless Database.db_credentials[:password].nil?
+    cmd += " -h '#{Database.db_credentials[:host]}'"    unless Database.db_credentials[:host].nil?
+    cmd += " #{Database.db_credentials[:database]}"
   end
 
   # Returns instance of class used to interface with S3
@@ -117,21 +115,21 @@ class Backitup
 
   def load_backup_manager
     begin
-      @backup_manager ||= YAML.load_file(adapter.fetch(BackupManager.filename).path)
-      @backup_manager ||= (YAML.load_file(BackupManager.local_filename) and puts "Attempting Local Load...")
+      @backup_manager ||= YAML.load_file(adapter.fetch(BackupManagement::BackupManager.filename).path)
+      @backup_manager ||= YAML.load_file(BackupManagement::BackupManager.local_filename)
     rescue
-      @backup_manager ||= BackupManager.new
+      @backup_manager ||= BackupManagement::BackupManager.new
     end
   end
 
   def save_backup_manager
     begin
-      File.open(BackupManager.local_filename, "w") { |f| YAML.dump(@backup_manager, f) }
+      File.open(BackupManagement::BackupManager.local_filename, "w") { |f| YAML.dump(@backup_manager, f) }
     rescue
-      puts "Unable to save local file: " << BackupManager.local_filename
+      puts "Unable to save local file: " << BackupManagement::BackupManager.local_filename
     end
     begin
-      adapter.store(BackupManager.filename, open(BackupManager.local_filename))
+      adapter.store(BackupManagement::BackupManager.filename, open(BackupManagement::BackupManager.local_filename))
     rescue
       puts "Unable to save BackupManager to S3"
     end
