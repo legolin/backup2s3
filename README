@@ -1,9 +1,10 @@
 Usage:
+
+  # First step
+  gem install backup2s3
+
   # In config/environment.rb
   config.gem "backup2s3", :version => ">= 0.1.0"
-
-  # In Rakefile
-  require 'backup2s3/tasks'
 
   # In config/initializers/backup2s3.rb
       Backup2s3.instance_eval do
@@ -30,4 +31,4 @@ Usage:
   rake backup2s3:backup:restore
 
   # Handy tasks
-rake backup2s3:statistics      # Shows you the size of your DB
+  rake backup2s3:statistics      # Shows you the size of your DB

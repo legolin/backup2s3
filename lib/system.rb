@@ -13,9 +13,13 @@ module System
   end
 
   # Creates app tar file
-  def self.tar_application
+  def self.tar_application(folders)
     application_tar = Tempfile.new("app")
-    cmd = "tar --dereference -czf #{application_tar.path} public/"
+    if folders.is_a?(Array)      
+      cmd = "tar --dereference -czf #{application_tar.path} #{folders.join(" ")}"
+    elsif folders.is_a?(String)
+      cmd = "tar --dereference -czf #{application_tar.path} #{folders}"
+    end
     run(cmd)
     return application_tar
   end

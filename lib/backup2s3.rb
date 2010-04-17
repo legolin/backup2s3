@@ -58,7 +58,8 @@ class Backup2s3
       #TODO create selective app dump and move to S3
     elsif ApplicationConfig[:application].class == Symbol and ApplicationConfig[:application] == :full
       @application_file = "#{@time}-#{System.db_credentials[:database]}-application.tar.gz"
-      application_temp = System.tar_application
+      application_temp = System.tar_application("public
+        ")
       puts ""
       puts "- Application tarball size: " << application_temp.size.to_s << " B"
       print "--- Backing up application folders..."
