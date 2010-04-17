@@ -3,6 +3,10 @@ Manifest
 README
 Rakefile
 VERSION
+generators/backup2s3/USAGE
+generators/backup2s3/backup2s3_generator.rb
+generators/backup2s3/templates/backup2s3.rake
+generators/backup2s3/templates/backup2s3.yml
 init.rb
 lib/adapters/s3_adapter.rb
 lib/backup2s3.rb
@@ -10,4 +14,3 @@ lib/backup_management/backup.rb
 lib/backup_management/backup_manager.rb
 lib/backup_management/tasks.rb
 lib/system.rb
-tasks/tasks.rake

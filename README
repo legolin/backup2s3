@@ -1,28 +1,33 @@
-Usage:
+SETUP:
 
   # First step
   gem install backup2s3
 
+  
   # In config/environment.rb
   config.gem "backup2s3", :version => ">= 0.1.0"
 
-  # In config/initializers/backup2s3.rb
-      Backup2s3.instance_eval do
-          ApplicationConfig = {
-            :adapter           => 'S3Adapter',
-            :max_number_of_backups => 5,
-            :database          => true,
-            :application       => :full
-          }
-          AdapterConfig = {
-            :access_key_id     => 'XXXXXXXXXXXXXXXXXXXX',
-            :secret_access_key => 'XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX',
-          }
-      end
 
-  # DB credentials are read from your rails environment
+  # In your application root directory
+  script/generate backup2s3
 
+
+  # Change your settings in config/backup2s3.yml
+  application:
+    max_number_of_backups: 5
+    backup_database: true
+    backup_application:
+      - public    
+  adapter:
+    access_key_id: XXXXXXXXXXXXXXXXXXXX
+    secret_access_key: XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+  
+  # DB credentials are read from your database.yml file
   rake gems:install
+
+
+USAGE:
 
   # Add to your crontab or whatever
   rake backup2s3:backup:create

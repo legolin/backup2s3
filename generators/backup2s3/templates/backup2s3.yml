@@ -1,0 +1,15 @@
+#Sample backup2s3 configuration file
+application:
+  max_number_of_backups: 5
+  backup_database: true
+  backup_application_folders:
+    - public    
+    - lib
+
+adapter:
+  access_key_id: XXXXXXXXXXXXXXXXXXXX
+  secret_access_key: XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+
+
+
