@@ -10,5 +10,3 @@ Echoe.new('backup2s3', '0.1.0') do |p|
   p.ignore_pattern = ["nbproject/*/*", "nbproject/*"]
   p.development_dependencies = []
 end
-
-Dir["#{File.dirname(__FILE__)}/tasks/*.rake"].sort.each{|ext| load ext }

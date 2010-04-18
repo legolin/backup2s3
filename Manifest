@@ -2,7 +2,6 @@ CHANGELOG
 Manifest
 README
 Rakefile
-VERSION
 generators/backup2s3/USAGE
 generators/backup2s3/backup2s3_generator.rb
 generators/backup2s3/templates/backup2s3.rake
