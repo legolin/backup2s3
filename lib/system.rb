@@ -13,7 +13,7 @@ module System
   end
 
   # Creates app tar file
-  def self.tar_application(folders)
+  def self.tarzip_folders(folders)
     application_tar = Tempfile.new("app")
     if folders.is_a?(Array)      
       cmd = "tar --dereference -czf #{application_tar.path} #{folders.join(" ")}"

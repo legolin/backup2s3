@@ -49,7 +49,7 @@ class BackupManagement::BackupManager
   end
 
   def list_backups(details = ENV['details'])
-    puts "--- Backups by Date ---"
+    puts "\n--- Backups by Date ---"
     count = 1
     self.backups.sort{|a,b| b.time <=> a.time}.each do |backup|
       puts "#{count}. #{backup.human_readable_time}, ID - #{backup.time}"
@@ -60,7 +60,7 @@ class BackupManagement::BackupManager
       end
       count = count.next
     end
-    puts "-----------------------"
+    puts "-----------------------\n\n"
   end  
 
   def number_of_backups

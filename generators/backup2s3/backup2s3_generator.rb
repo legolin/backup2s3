@@ -34,6 +34,7 @@ class Backup2s3Generator < Rails::Generator::Base
         rake backup2s3:backup:restore - Restores a specific backup
 
       Some handy tasks
+
         rake backup2s3:statistics     - Shows you the size of your DB
 
     -------------------------------------------------------------------

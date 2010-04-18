@@ -12,5 +12,4 @@ lib/adapters/s3_adapter.rb
 lib/backup2s3.rb
 lib/backup_management/backup.rb
 lib/backup_management/backup_manager.rb
-lib/backup_management/tasks.rb
 lib/system.rb

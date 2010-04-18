@@ -58,7 +58,7 @@ class Adapters::S3Adapter
   end
 
   def bucket    
-    @bucket ||= clean("#{ActiveRecord::Base.connection.current_database.to_str}-x-#{`hostname`.to_str}").downcase
+    @bucket ||= clean("#{ActiveRecord::Base.connection.current_database.to_str.downcase}-ON-#{`hostname`.to_str.downcase}")
   end
 
   def clean(str)

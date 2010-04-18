@@ -1,19 +1,19 @@
 SETUP:
 
-  # First step
+  1. Install the gem
   gem install backup2s3
 
   
-  # In config/environment.rb
+  2. Add the below code to config/environment.rb
   config.gem "backup2s3", :version => ">= 0.1.0"
 
 
-  # In your application root directory
+  3. Run the generator in your application root directory
   script/generate backup2s3
 
 
-  # Change your settings in config/backup2s3.yml
-  application:
+  4. Change your settings in config/backup2s3.yml
+  backups:
     max_number_of_backups: 5
     backup_database: true
     backup_application:
@@ -22,18 +22,16 @@ SETUP:
     access_key_id: XXXXXXXXXXXXXXXXXXXX
     secret_access_key: XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 
-  
-  # DB credentials are read from your database.yml file
-  rake gems:install
-
 
 USAGE:
 
-  # Backup tasks
-  rake backup2s3:backup:create
-  rake backup2s3:backup:delete
-  rake backup2s3:backup:list
-  rake backup2s3:backup:restore
+  Backup tasks
 
-  # Handy tasks
-  rake backup2s3:statistics      # Shows you the size of your DB
+    rake backup2s3:backup:create  - Creates a backup and moves it to S3
+    rake backup2s3:backup:delete  - Deletes the specific backup
+    rake backup2s3:backup:list    - Lists all backups that are currently on S3
+    rake backup2s3:backup:restore - Restores a specific backup
+
+  Some handy tasks
+
+    rake backup2s3:statistics     - Shows you the size of your DB

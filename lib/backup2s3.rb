@@ -8,7 +8,9 @@ class Backup2s3
 
   def initialize
     STDOUT.sync = true #used so that print will not buffer output
-    ActiveResource::Base.logger = true
+    #ActiveResource::Base.logger = true
+    load_configuration
+    load_adapter
     load_backup_manager
     @database_file = ""
     @application_file = ""
@@ -29,6 +31,7 @@ class Backup2s3
     save_backup_manager
   end
 
+  #RESTORE restores a backup
   def restore(backup_id = ENV['id'])
     raise "ID to restore is blank!" and return if backup_id == nil
     restore_backup(backup_id)
@@ -43,33 +46,28 @@ class Backup2s3
 
   private
 
+  # Creates both the application file backup and database backup and moves them
+  # to S3.  This method will also update the BackupManager and store it's updated
+  # information.
   def create_backup(comment)
-    if ApplicationConfig[:database]
+    if @conf[:backups][:backup_database]
       @database_file = "#{@time}-#{System.db_credentials[:database]}-database.sql"
-      database_temp = System.db_dump
-      puts ""
-      puts "- System dump size: " << database_temp.size.to_s << " B"
-      print "--- Backing up database..."
-      adapter.store(@database_file, open(database_temp.path))
+      database_temp = System.db_dump      
+      puts "\n- System dump size: " << database_temp.size.to_s << " B"; print "--- Backing up database..."
+      @adapter.store(@database_file, open(database_temp.path))
       puts "done"
     end
-
-    if ApplicationConfig[:application].class == Array
-      #TODO create selective app dump and move to S3
-    elsif ApplicationConfig[:application].class == Symbol and ApplicationConfig[:application] == :full
+    
+    if @conf[:backups][:backup_application_folders].is_a?(Array)
       @application_file = "#{@time}-#{System.db_credentials[:database]}-application.tar.gz"
-      application_temp = System.tar_application("public
-        ")
-      puts ""
-      puts "- Application tarball size: " << application_temp.size.to_s << " B"
-      print "--- Backing up application folders..."
-      adapter.store(@application_file, open(application_temp.path))
+      application_temp = System.tarzip_folders(@conf[:backups][:backup_application_folders])
+      puts "\n- Application tarball size: " << application_temp.size.to_s << " B"; print "--- Backing up application folders..."
+      @adapter.store(@application_file, open(application_temp.path))
       puts "done"
     end
 
-    if ApplicationConfig[:max_number_of_backups] == @backup_manager.number_of_backups then
-      puts ""
-      puts "Reached max_number_of_backups, removing oldest backup..."
+    if @conf[:backups][:max_number_of_backups] == @backup_manager.number_of_backups then
+      puts "\nReached max_number_of_backups, removing oldest backup..."
       backup_to_delete = @backup_manager.get_oldest_backup
       delete_backup(backup_to_delete.time)
     end
@@ -78,41 +76,45 @@ class Backup2s3
     puts ""
   end
 
+  # Deletes the Backup, application backup files and database files associated
+  # with the Backup identified by backup_id.  
   def delete_backup(backup_id)
     backup = @backup_manager.get_backup(backup_id)
     if backup.nil? then
       puts "Backup with ID #{backup_id} does not exist."
       return
     end    
-    begin adapter.delete(backup.application_file) rescue puts "Could not delete #{backup.application_file}!" end
-    begin adapter.delete(backup.database_file) rescue puts "Could not delete #{backup.database_file}!" end    
+    begin @adapter.delete(backup.application_file) rescue puts "Could not delete #{backup.application_file}!" end
+    begin @adapter.delete(backup.database_file) rescue puts "Could not delete #{backup.database_file}!" end
     puts (@backup_manager.delete_backup(backup) ?
         "Backup with ID #{backup.time} was successfully deleted." :
         "Warning: Backup with ID #{backup.time} was not found and therefore not deleted.")
   end
 
-  def restore_backup(backup_id)
-    backup = @backup_manager.get_backup(backup_id)
-    if backup.nil? then
-      puts "Backup with ID #{backup_id} does not exist."
-      return
-    end    
+#  def restore_backup(backup_id)
+#    backup = backup_manager.get_backup(backup_id)
+#    if backup.nil? then
+#      puts "Backup with ID #{backup_id} does not exist."
+#      return
+#    end
+#
+#  end
 
+  # Loads the config/backup2s3.yml configuration file
+  def load_configuration
+    @conf = YAML.load_file("#{RAILS_ROOT}/config/backup2s3.yml")
   end
-  
 
-  # Returns instance of class used to interface with S3
-  def adapter
-    return @adapter if @adapter
-    selected_adapter = ("Adapters::" << ApplicationConfig[:adapter]).constantize
-    @adapter ||= selected_adapter.new(AdapterConfig)
-  end  
+  # Creates instance of class used to interface with S3
+  def load_adapter    
+    @adapter = Adapters::S3Adapter.new(@conf[:adapter])
+  end
 
   def load_backup_manager
     BackupManagement::BackupManager.new()
     BackupManagement::Backup.new(nil, nil, nil)
     begin           
-      @backup_manager ||= YAML.load_file(adapter.fetch(BackupManagement::BackupManager.filename).path)
+      @backup_manager = YAML.load_file(@adapter.fetch(BackupManagement::BackupManager.filename).path)
       @backup_manager ||= YAML.load_file(BackupManagement::BackupManager.local_filename)
     rescue
       @backup_manager ||= BackupManagement::BackupManager.new
@@ -126,7 +128,7 @@ class Backup2s3
       puts "Unable to save local file: " << BackupManagement::BackupManager.local_filename
     end
     begin
-      adapter.store(BackupManagement::BackupManager.filename, open(BackupManagement::BackupManager.local_filename))
+      @adapter.store(BackupManagement::BackupManager.filename, open(BackupManagement::BackupManager.local_filename))
     rescue
       puts "Unable to save BackupManager to S3"
     end
