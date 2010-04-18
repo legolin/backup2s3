@@ -29,7 +29,7 @@ SETUP:
 
 USAGE:
 
-  # Add to your crontab or whatever
+  # Backup tasks
   rake backup2s3:backup:create
   rake backup2s3:backup:delete
   rake backup2s3:backup:list

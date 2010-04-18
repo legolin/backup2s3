@@ -16,22 +16,27 @@ class Backup2s3Generator < Rails::Generator::Base
   def message
     <<-MESSAGE
 
+    -------------------------------------------------------------------
+
     You have successfully installed backup2s3!
 
     1. Modify your configuration file:
 
       config/backup2s3.yml
 
-    2.
+    2. Get started.
 
-    
-    rake backup2s3:backup:create
-    rake backup2s3:backup:delete
-    rake backup2s3:backup:list
-    rake backup2s3:backup:restore
+      Backup tasks
+      
+        rake backup2s3:backup:create  - Creates a backup and moves it to S3
+        rake backup2s3:backup:delete  - Deletes the specific backup
+        rake backup2s3:backup:list    - Lists all backups that are currently on S3
+        rake backup2s3:backup:restore - Restores a specific backup
 
-    # Handy tasks
-    rake backup2s3:statistics      # Shows you the size of your DB
+      Some handy tasks
+        rake backup2s3:statistics     - Shows you the size of your DB
+
+    -------------------------------------------------------------------
 
     MESSAGE
   end
