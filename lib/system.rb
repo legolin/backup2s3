@@ -2,8 +2,8 @@ require 'tempfile'
 
 module System
 
-  def self.db_credentials
-    ActiveRecord::Base.connection.instance_eval { @config }
+  def self.db_credentials    
+    ActiveRecord::Base.configurations[RAILS_ENV]
   end
 
   # Run system commands
@@ -36,10 +36,10 @@ module System
 
   def self.mysql_options
     cmd = ''
-    cmd += " -u #{db_credentials[:username]} " unless db_credentials[:username].nil?
-    cmd += " -p'#{db_credentials[:password]}'" unless db_credentials[:password].nil?
-    cmd += " -h '#{db_credentials[:host]}'"    unless db_credentials[:host].nil?
-    cmd += " #{db_credentials[:database]}"
+    cmd += " -u #{db_credentials['username']} " unless db_credentials['username'].nil?
+    cmd += " -p'#{db_credentials['password']}'" unless db_credentials['password'].nil?
+    cmd += " -h '#{db_credentials['host']}'"    unless db_credentials['host'].nil?
+    cmd += " #{db_credentials['database']}"
   end
     
 end

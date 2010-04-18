@@ -51,7 +51,7 @@ class Backup2s3
   # information.
   def create_backup(comment)
     if @conf[:backups][:backup_database]
-      @database_file = "#{@time}-#{System.db_credentials[:database]}-database.sql"
+      @database_file = "#{@time}-#{System.db_credentials['database']}-database.sql"
       database_temp = System.db_dump      
       puts "\n- System dump size: " << database_temp.size.to_s << " B"; print "--- Backing up database..."
       @adapter.store(@database_file, open(database_temp.path))
@@ -59,7 +59,7 @@ class Backup2s3
     end
     
     if @conf[:backups][:backup_application_folders].is_a?(Array)
-      @application_file = "#{@time}-#{System.db_credentials[:database]}-application.tar.gz"
+      @application_file = "#{@time}-#{System.db_credentials['database']}-application.tar.gz"
       application_temp = System.tarzip_folders(@conf[:backups][:backup_application_folders])
       puts "\n- Application tarball size: " << application_temp.size.to_s << " B"; print "--- Backing up application folders..."
       @adapter.store(@application_file, open(application_temp.path))
