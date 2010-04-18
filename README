@@ -13,14 +13,15 @@ SETUP:
 
 
   4. Change your settings in config/backup2s3.yml
-  backups:
-    max_number_of_backups: 5
-    backup_database: true
-    backup_application:
-      - public    
-  adapter:
-    access_key_id: XXXXXXXXXXXXXXXXXXXX
-    secret_access_key: XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+  :backups:
+    :max_number_of_backups: 5
+    :backup_database: true
+    :backup_application:
+      - public
+      - lib
+  :adapter:
+    :access_key_id: XXXXXXXXXXXXXXXXXXXX
+    :secret_access_key: XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 
 
 USAGE:
