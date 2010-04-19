@@ -1,7 +1,7 @@
 require 'aws/s3'
-require 'tidy'
 
 class Adapters::S3Adapter
+  include System
 
   def initialize(config)
     @config = config
@@ -33,10 +33,8 @@ class Adapters::S3Adapter
     file
   end
 
-  def read(file_name)
-    puts "trying..."
+  def read(file_name)    
     ensure_connected
-    puts "trying..."
     return AWS::S3::S3Object.find(file_name, bucket)
   end
 
@@ -53,17 +51,15 @@ class Adapters::S3Adapter
 
   private
 
-  def access_key_id
-
-  end
-
   def bucket    
-    @bucket ||= clean("#{ActiveRecord::Base.connection.current_database.to_str.downcase}-ON-#{`hostname`.to_str.downcase}")
+    @bucket ||= clean("#{ActiveRecord::Base.connection.current_database.to_str.downcase}-ON-#{System.hostname.downcase}")
   end
 
   def clean(str)
     str.gsub!(".", "-dot-")
-    str.gsub!("_", "-")    
-    return str.tidy
+    str.gsub!("_", "-")
+    str.gsub!("\n", "")
+    return str
   end
+  
 end

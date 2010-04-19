@@ -2,6 +2,10 @@ require 'tempfile'
 
 module System
 
+  def self.hostname
+    `hostname`.to_str.gsub!("\n", "")
+  end
+
   def self.db_credentials    
     ActiveRecord::Base.configurations[RAILS_ENV]
   end
@@ -24,6 +28,11 @@ module System
     return application_tar
   end
 
+  def self.unzip_file(tarball)
+    cmd = "tar xpf #{tarball.path}"
+    run(cmd)
+  end
+
   # Creates and runs mysqldump and throws into .tar.gz file.
   # Returns .tar.gz file
   def self.db_dump
@@ -34,13 +43,20 @@ module System
     return dump_file
   end
 
+  def self.load_db_dump(dump_file)
+    cmd = "mysql #{mysql_options}"
+    cmd += " < #{dump_file.path}"
+    run(cmd)
+    true
+  end
+
   def self.mysql_options
     cmd = ''
     cmd += " -u #{db_credentials['username']} " unless db_credentials['username'].nil?
     cmd += " -p'#{db_credentials['password']}'" unless db_credentials['password'].nil?
     cmd += " -h '#{db_credentials['host']}'"    unless db_credentials['host'].nil?
     cmd += " #{db_credentials['database']}"
-  end
+  end  
     
 end
 

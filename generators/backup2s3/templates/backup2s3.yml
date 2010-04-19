@@ -9,7 +9,7 @@
 :adapter:
   :access_key_id: XXXXXXXXXXXXXXXXXXXX
   :secret_access_key: XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-
+  :use_ssl: true
 
 
 

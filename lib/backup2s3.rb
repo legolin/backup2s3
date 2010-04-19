@@ -26,14 +26,14 @@ class Backup2s3
 
   #DELETE deletes a backup
   def delete(backup_id = ENV['id'])
-    raise "ID to delete is blank!" and return if backup_id == nil
+    raise "id is blank! There was no backup specified for deletion." and return if backup_id == nil
     delete_backup(backup_id)
     save_backup_manager
   end
 
   #RESTORE restores a backup
   def restore(backup_id = ENV['id'])
-    raise "ID to restore is blank!" and return if backup_id == nil
+    raise "id is blank! There was no backup specified for restoration." and return if backup_id == nil
     restore_backup(backup_id)
     save_backup_manager
   end
@@ -52,16 +52,18 @@ class Backup2s3
   def create_backup(comment)
     if @conf[:backups][:backup_database]
       @database_file = "#{@time}-#{System.db_credentials['database']}-database.sql"
+      print "\nDumping database..."
       database_temp = System.db_dump      
-      puts "\n- System dump size: " << database_temp.size.to_s << " B"; print "--- Backing up database..."
+      puts "done\n- Database dump file size: " << database_temp.size.to_s << " B"; print "Backing up database dump file..."
       @adapter.store(@database_file, open(database_temp.path))
       puts "done"
     end
     
     if @conf[:backups][:backup_application_folders].is_a?(Array)
       @application_file = "#{@time}-#{System.db_credentials['database']}-application.tar.gz"
+      print "\nZipping application folders..."
       application_temp = System.tarzip_folders(@conf[:backups][:backup_application_folders])
-      puts "\n- Application tarball size: " << application_temp.size.to_s << " B"; print "--- Backing up application folders..."
+      puts "done\n- Application tarball size: " << application_temp.size.to_s << " B"; print "Backing up application tarball..."
       @adapter.store(@application_file, open(application_temp.path))
       puts "done"
     end
@@ -91,14 +93,28 @@ class Backup2s3
         "Warning: Backup with ID #{backup.time} was not found and therefore not deleted.")
   end
 
-#  def restore_backup(backup_id)
-#    backup = backup_manager.get_backup(backup_id)
-#    if backup.nil? then
-#      puts "Backup with ID #{backup_id} does not exist."
-#      return
-#    end
-#
-#  end
+  def restore_backup(backup_id)
+    backup = @backup_manager.get_backup(backup_id)
+    if backup.nil? then
+      puts "Backup with ID #{backup_id} does not exist."
+      return
+    end
+    print "\nRetrieving application tarball..."
+    application_file = @adapter.fetch(backup.application_file)
+    puts "done"
+
+    print "Restoring application from application tarball..."
+    System.unzip_file(application_file)
+    puts "done\n"
+
+    print "\nRetrieving datbase dump_file..."
+    dump_file = @adapter.fetch(backup.database_file)
+    puts "done";
+
+    print "Restoring database from database dump file..."
+    System.load_db_dump(dump_file)
+    puts "done\n\n"
+  end
 
   # Loads the config/backup2s3.yml configuration file
   def load_configuration

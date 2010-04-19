@@ -11,7 +11,7 @@ class BackupManagement::BackupManager
   end
 
   def self.filename
-    "#{System.db_credentials['database']}_ON_#{`hostname`.tidy}_backups.yaml".tidy
+    "#{System.db_credentials['database']}_ON_#{System.hostname}_backups.yaml"
   end
 
   def self.local_filename
