@@ -107,7 +107,7 @@ class Backup2s3
     System.unzip_file(application_file)
     puts "done\n"
 
-    print "\nRetrieving datbase dump_file..."
+    print "\nRetrieving database dump_file..."
     dump_file = @adapter.fetch(backup.database_file)
     puts "done";
 

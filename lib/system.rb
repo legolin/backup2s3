@@ -20,9 +20,9 @@ module System
   def self.tarzip_folders(folders)
     application_tar = Tempfile.new("app")
     if folders.is_a?(Array)      
-      cmd = "tar --dereference -czf #{application_tar.path} #{folders.join(" ")}"
+      cmd = "tar --dereference -czpf #{application_tar.path} #{folders.join(" ")}"
     elsif folders.is_a?(String)
-      cmd = "tar --dereference -czf #{application_tar.path} #{folders}"
+      cmd = "tar --dereference -czpf #{application_tar.path} #{folders}"
     end
     run(cmd)
     return application_tar
