@@ -2,6 +2,7 @@ require 'rubygems'
 require 'active_support'
 require 'tempfile'
 require 'yaml'
+require 'backup2s3/system'
 
 class Backup2s3
   include System
