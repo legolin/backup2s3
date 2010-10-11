@@ -3,6 +3,9 @@ require 'active_support'
 require 'tempfile'
 require 'yaml'
 require 'backup2s3/system'
+require 'backup2s3/adapters/s3_adapter.rb'
+require 'backup2s3/backup_management/backup.rb'
+require 'backup2s3/backup_management/backup_manager.rb'
 
 class Backup2s3
   include System
